@@ -18,12 +18,20 @@ db.serialize(() => {
     username TEXT UNIQUE,
     password TEXT
   )`);
+  db.run(`CREATE TABLE IF NOT EXISTS scores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    mode TEXT,
+    time REAL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 });
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 
 app.get('/', (req, res) => {
@@ -66,12 +74,43 @@ app.get('/logout', (req, res) => {
 
 // Single player page
 app.get('/single', (req, res) => {
-  res.render('single');
+  res.render('single', { user: req.session.user });
 });
 
 // Multiplayer page
 app.get('/multi', (req, res) => {
-  res.render('multi');
+  res.render('multi', { user: req.session.user });
+});
+
+// Scores page with optional mode filter
+app.get('/scores', (req, res) => {
+  const { mode } = req.query;
+  let sql =
+    `SELECT users.username, mode, time FROM scores JOIN users ON scores.user_id = users.id`;
+  const params = [];
+  if (mode) {
+    sql += ' WHERE mode = ?';
+    params.push(mode);
+  }
+  sql += ' ORDER BY time ASC LIMIT 10';
+  db.all(sql, params, (err, rows) => {
+    if (err) rows = [];
+    res.render('scores', { scores: rows, user: req.session.user, mode });
+  });
+});
+
+// Save score
+app.post('/score', (req, res) => {
+  if (!req.session.user) return res.status(401).end();
+  const { time, mode } = req.body;
+  db.run(
+    'INSERT INTO scores (user_id, mode, time) VALUES (?,?,?)',
+    [req.session.user.id, mode, time],
+    err => {
+      if (err) console.error(err);
+      res.end();
+    }
+  );
 });
 
 const texts = [
@@ -79,6 +118,12 @@ const texts = [
   'La cigüeña tocaba el saxofón detrás del palenque de paja.',
   'Jovencillo emponzoñado de whisky, ¡qué figurota exhibe!'
 ];
+
+// Provide random text for single player
+app.get('/text', (req, res) => {
+  const text = texts[Math.floor(Math.random() * texts.length)];
+  res.type('text/plain').send(text);
+});
 
 io.on('connection', socket => {
   socket.on('joinRace', () => {
