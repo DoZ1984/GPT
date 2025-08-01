@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Too Type Too Furious</title>
+</head>
+<body>
+  <% if (user) { %>
+    <p>Bienvenido, <%= user.username %> | <a href="/logout">Salir</a></p>
+    <h2>Elige modalidad</h2>
+    <ul>
+      <li><a href="/single">Juego individual</a></li>
+      <li><a href="/multi">Carrera multijugador</a></li>
+    </ul>
+  <% } else { %>
+    <a href="/login">Iniciar sesión</a> | <a href="/register">Registrarse</a>
+  <% } %>
+</body>
+</html>
