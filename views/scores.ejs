@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Clasificación</title>
+</head>
+<body>
+  <% if (user) { %>
+    <p>Bienvenido, <%= user.username %> | <a href="/logout">Salir</a></p>
+  <% } else { %>
+    <a href="/login">Iniciar sesión</a> | <a href="/register">Registrarse</a>
+  <% } %>
+  <h1>Mejores tiempos</h1>
+  <p>
+    <a href="/scores" <% if (!mode) { %>style="font-weight:bold"<% } %>>Todos</a> |
+    <a href="/scores?mode=single" <% if (mode==='single') { %>style="font-weight:bold"<% } %>>Individual</a> |
+    <a href="/scores?mode=multi" <% if (mode==='multi') { %>style="font-weight:bold"<% } %>>Multijugador</a>
+  </p>
+  <table border="1">
+    <tr><th>Usuario</th><th>Modo</th><th>Tiempo (s)</th></tr>
+    <% scores.forEach(s => { %>
+      <tr><td><%= s.username %></td><td><%= s.mode %></td><td><%= s.time %></td></tr>
+    <% }) %>
+  </table>
+  <a href="/">Volver</a>
+</body>
+</html>

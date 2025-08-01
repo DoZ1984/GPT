@@ -6,6 +6,9 @@
 </head>
 <body>
   <h1>Juego individual</h1>
+  <% if (!user) { %>
+    <p style="color:red">Inicia sesión para guardar tu puntuación.</p>
+  <% } %>
   <div id="text"></div>
   <textarea id="input" rows="3" cols="60"></textarea>
   <div id="result"></div>

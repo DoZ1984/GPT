@@ -1,17 +1,25 @@
-const texts = [
-  'Hola mundo de la mecanografía.',
-  'Practica para ser el más rápido.',
-  'Too Type Too Furious en acción.'
-];
-const text = texts[Math.floor(Math.random() * texts.length)];
+let text = '';
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('text').textContent = text;
+  fetch('/text')
+    .then(r => r.text())
+    .then(t => {
+      text = t;
+      document.getElementById('text').textContent = text;
+    });
   const input = document.getElementById('input');
-  const start = Date.now();
+  let start;
   input.addEventListener('input', () => {
+    if (!start) start = Date.now();
     if (input.value === text) {
       const time = (Date.now() - start) / 1000;
-      document.getElementById('result').textContent = `Tiempo: ${time}s`;
+      fetch('/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ time, mode: 'single' })
+      }).then(() => {
+        document.getElementById('result').textContent = `Tiempo: ${time}s`;
+        window.location.href = '/scores';
+      });
     }
   });
 });

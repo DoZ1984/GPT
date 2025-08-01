@@ -7,9 +7,13 @@
 </head>
 <body>
   <h1>Carrera multijugador</h1>
+  <% if (!user) { %>
+    <p style="color:red">Inicia sesión para guardar tu puntuación.</p>
+  <% } %>
   <div id="text"></div>
   <textarea id="input" rows="3" cols="60"></textarea>
   <div id="opponent"></div>
+  <div id="result"></div>
   <a href="/">Volver</a>
 </body>
 </html>
